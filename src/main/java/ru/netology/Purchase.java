@@ -3,6 +3,10 @@ package ru.netology;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Scanner;
 
 public class Purchase implements Serializable {
@@ -11,6 +15,11 @@ public class Purchase implements Serializable {
     private String date;
     private int sum;
     private String category;
+    private Calendar calendar;
+    private int year;
+    private int month;
+    private int day;
+
     public Purchase(String title, String date, int sum) {
         this.title = title;
         this.date = date;
@@ -29,6 +38,18 @@ public class Purchase implements Serializable {
         return this.category = addTypeOfCategory(this);
     }
 
+    public int getYear() {
+        return year;
+    }
+
+    public int getMonth() {
+        return month;
+    }
+
+    public int getDay() {
+        return day;
+    }
+
     private String addTypeOfCategory(Purchase purchase) {
         try (Scanner scanner = new Scanner(new File("categories.tsv"))) {
             while (scanner.hasNextLine()) {
@@ -42,5 +63,14 @@ public class Purchase implements Serializable {
             e.printStackTrace();
         }
         return "другое";
+    }
+    public Purchase specify() throws ParseException {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new SimpleDateFormat("yyyy.MM.dd").parse(date));
+        this.calendar = cal;
+        this.year = calendar.get(Calendar.YEAR);
+        this.month = calendar.get(Calendar.MONTH);
+        this.day = calendar.get(Calendar.DAY_OF_MONTH);
+        return this;
     }
 }
