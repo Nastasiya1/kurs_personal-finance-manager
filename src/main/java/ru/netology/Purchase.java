@@ -2,9 +2,11 @@ package ru.netology;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.Serializable;
 import java.util.Scanner;
 
-public class Purchase {
+public class Purchase implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String title;
     private String date;
     private int sum;
@@ -13,7 +15,6 @@ public class Purchase {
         this.title = title;
         this.date = date;
         this.sum = sum;
-        this.category = addTypeOfCategory(this);
     }
 
     public int getSum() {
@@ -25,7 +26,7 @@ public class Purchase {
     }
 
     public String getCategory() {
-        return category;
+        return this.category = addTypeOfCategory(this);
     }
 
     private String addTypeOfCategory(Purchase purchase) {

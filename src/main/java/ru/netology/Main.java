@@ -3,10 +3,7 @@ package ru.netology;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -15,7 +12,16 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(8989)) {
-            List<Purchase> allPurchases = new ArrayList<>();
+            List <Purchase> allPurchases = new ArrayList<>();
+            File file = new File("data.bin");
+            if (file.exists()) {
+                try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
+                    allPurchases = (List<Purchase>) in.readObject();
+                } catch (ClassNotFoundException | IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
             while (true) {
                 try (
                         Socket socket = serverSocket.accept();
@@ -29,6 +35,9 @@ public class Main {
                     Purchase purchase = gson1.fromJson(json, Purchase.class);
                     allPurchases.add(purchase);
 
+                    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("data.bin"))) {
+                        oos.writeObject(allPurchases);
+                    }
                     Statistics stat = new TotalStatistics();
                     stat.findMaxCategory(allPurchases);
                     Gson gson = new GsonBuilder().setPrettyPrinting().create();
