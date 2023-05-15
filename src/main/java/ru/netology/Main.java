@@ -3,17 +3,18 @@ package ru.netology;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
 
 public class Main {
-    public static void main(String[] args) throws ParseException {
+
+    public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(8989)) {
-            List <Purchase> allPurchases = new ArrayList<>();
+            List<Purchase> allPurchases = new ArrayList<>();
             File file = new File("data.bin");
             if (file.exists()) {
                 try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
@@ -34,6 +35,7 @@ public class Main {
                     Gson gson1 = new Gson();
                     String json = in.readLine();
                     Purchase purchase = gson1.fromJson(json, Purchase.class);
+                    purchase.setCategory(designateCategories().getOrDefault(purchase.getTitle(), "другое"));
                     purchase.specify();
                     allPurchases.add(purchase);
 
@@ -67,5 +69,19 @@ public class Main {
             System.out.println("Не могу стартовать сервер");
             e.printStackTrace();
         }
+    }
+
+    private static Map<String, String> designateCategories() {
+        Map<String, String> providedCategories = new HashMap<>();
+        try (Scanner scanner = new Scanner(new File("categories.tsv"))) {
+            while (scanner.hasNextLine()) {
+                String[] parts = scanner.nextLine().split("\t");
+                providedCategories.put(parts[0], parts[1]);
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("Файл с категориями не найден");
+            e.printStackTrace();
+        }
+        return providedCategories;
     }
 }
